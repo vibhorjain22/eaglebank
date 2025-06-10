@@ -1,174 +1,153 @@
 Objective: 
-Develop a REST API with multiple resources: User, Account, and Transaction.
+## Project Approach
 
-Key Resources
+### Develop a REST API with Multiple Resources
 
-1. User: Create, Read (Get), Update, Delete (CRUD operations)My Springboot Java project has three resources, "user", "accounts" and associated "transactions". 
-Generate springboot JAVA controllers and supporting classes for REST APIs for a given open api yaml file
+This project involves building a Spring Boot Java REST API with three main resources: **User**, **Account**, and **Transaction**. The API is generated based on an OpenAPI YAML file.
 
-2. Account: Create, Read, Update, Delete (CRUD operations)
+---
 
-3. Transaction: Create, Read, Fetch transaction history, and other operations tied to an Account.
+### Key Resources
 
-Key Considerations
-1. URL Structure to follow URI versioning pattern eg: /v1/users
-2. We will use REST API and HTTP Methods to design the APIs eg: POST for create, PATCH for update.
-3. We need an authentication mechanism to protect all APIs except creating of User and authenticating a user.
-4. We will add a filter which will by default expect a JWT token to extract userId to ensure only authneticated user is able to make requests. There will be a configurable exception resource paths.
+1. **User**
+  - CRUD operations: Create, Read, Update, Delete
+2. **Account**
+  - CRUD operations: Create, Read, Update, Delete
+3. **Transaction**
+  - Operations: Create, Read, Fetch transaction history, and other account-related actions
 
+---
 
-Steps Taken
-1. Create Data Model to store as entity as per openApi.yaml
-2. Create Request Objects as per openApi.yaml
-3. Create Controllers for the required operations using request objects and returning data models.
-4. Controllers will interact with Repository to persist data in memory.
-5. Create AuthenticateController to do standalone activity for authenticating users and returning JWT. For the purpose of demo this will only authenticate users with userID as userId-1 / userId-2.
-6. Create a Filter that runs for every request and verifies that the incoming request if is authenticated then is appropriate for the user id present in the JWT token if the token is valid.
-7. Create a custom access check component that ensures the requested resource is available to the authenticated user.
+### Key Considerations
 
+- **URL Structure:** Use URI versioning (e.g., `/v1/users`)
+- **HTTP Methods:** Use RESTful conventions (e.g., `POST` for create, `PATCH` for update)
+- **Authentication:** All APIs require authentication except user creation and authentication endpoints
+- **JWT Filter:** A filter checks for a valid JWT token and extracts the userId, allowing only authenticated users to access resources. Exception paths are configurable.
 
-In Memory Database Portal
-http://localhost:8080/h2-console/login.jsp
-JDBC URL jdbc:h2:mem:testdb
+---
 
-Key Endpoints
+### Implementation Steps
 
-1. **User APIs**
-   - **Create User**
-     - `POST /v1/users`
-     - Request Body:
-       ```json
-       {
-         "name": "Test User",
-         "address": {
-           "line1": "123 Main St",
-           "line2": "Apt 4B",
-           "line3": "",
-           "town": "London",
-           "county": "Greater London",
-           "postcode": "E1 6AN"
-         },
-         "phoneNumber": "+441234567890",
-         "email": "test@example.com"
-       }
-       ```
-   - **Fetch User by ID**
-     - `GET /v1/users/{userId}`
-   - **Update User by ID**
-     - `PATCH /v1/users/{userId}`
-     - Request Body:
-       ```json
-       {
-         "name": "Updated Name",
-         "address": {
-           "line1": "456 New St",
-           "line2": "",
-           "line3": "",
-           "town": "Manchester",
-           "county": "Greater Manchester",
-           "postcode": "M1 2AB"
-         },
-         "phoneNumber": "+441234567891",
-         "email": "updated@example.com"
-       }
-       ```
-   - **Delete User by ID**
-     - `DELETE /v1/users/{userId}`
+1. **Data Model:** Define entities as per `openApi.yaml`
+2. **Request Objects:** Create request DTOs as per `openApi.yaml`
+3. **Controllers:** Implement REST controllers using request objects and returning data models
+4. **Repository:** Controllers interact with an in-memory repository for data persistence
+5. **Authentication:** Implement an `AuthenticateController` for user authentication and JWT issuance (demo users: `userId-1`, `userId-2`)
+6. **JWT Filter:** Validate JWT on each request, ensuring resource access matches authenticated user
+7. **Access Check:** Custom component to verify resource ownership
 
-2. **Account APIs**
-   - **Create Account**
-     - `POST /v1/accounts`
-     - Request Body:
-       ```json
-       {
-         "name": "Personal Bank Account",
-         "accountType": "personal"
-       }
-       ```
-   - **List Accounts**
-     - `GET /v1/accounts`
-   - **Fetch Account by Account Number**
-     - `GET /v1/accounts/{accountNumber}`
-   - **Update Account by Account Number**
-     - `PATCH /v1/accounts/{accountNumber}`
-     - Request Body:
-       ```json
-       {
-         "name": "Updated Account Name",
-         "accountType": "personal"
-       }
-       ```
-   - **Delete Account by Account Number**
-     - `DELETE /v1/accounts/{accountNumber}`
+---
 
-3. **Transaction APIs**
-   - **Create Transaction**
-     - `POST /v1/accounts/{accountNumber}/transactions`
-     - Request Body:
-       ```json
-       {
-         "amount": 100.00,
-         "currency": "GBP",
-         "type": "deposit",
-         "reference": "Initial deposit"
-       }
-       ```
-   - **List Transactions for an Account**
-     - `GET /v1/accounts/{accountNumber}/transactions`
-   - **Fetch Transaction by ID**
-     - `GET /v1/accounts/{accountNumber}/transactions/{transactionId}`
+### In-Memory Database
 
-4. **Authentication API**
-   - **Authenticate User**
-     - `POST /v1/authenticate`
-     - Request Body:
-       ```json
-       {
-         "username": "userId-1"
-       }
-       ```
+- **H2 Console:** [http://localhost:8080/h2-console/login.jsp](http://localhost:8080/h2-console/login.jsp)
+- **JDBC URL:** `jdbc:h2:mem:testdb`
 
+---
 
+### Key Endpoints
 
-Requirements Points for discussion
-1. Handle UserId differently rather forming them as part of request.
-2. Error Messages and status code need to be made vague rather making them obvious for not found and forbidden criteria.
-3. when validation fails use error codes rather error messages for field names.
-4. observability tools
-5. authenticate endpoint for non existing users should return 401 or 403?
-6. if account number can only belong to authenticated user then why do we even
-need it in the URL we can remove it and ensure transaction id belong to the user.
+#### 1. User APIs
 
+- **Create User:** `POST /v1/users`
+  ```json
+  {
+   "name": "Test User",
+   "address": {
+    "line1": "123 Main St",
+    "line2": "Apt 4B",
+    "line3": "",
+    "town": "London",
+    "county": "Greater London",
+    "postcode": "E1 6AN"
+   },
+   "phoneNumber": "+441234567890",
+   "email": "test@example.com"
+  }
+  ```
+- **Fetch User by ID:** `GET /v1/users/{userId}`
+- **Update User by ID:** `PATCH /v1/users/{userId}`
+- **Delete User by ID:** `DELETE /v1/users/{userId}`
 
+#### 2. Account APIs
 
-Testing
-Sc 1 - Create a new User
-Sc 2 - Create User should have validations, status 400
-Sc 3 - Auth an existing user, Get that users details, details should come back.
-Sc 4 - Auth an existing user, Get another existing user details should fail with 403.
-Sc 5 - Auth an existing user, Get non-existing user details, should fail with not found 404
-Sc 6 - Auth an existing user, update that users details. Details come back and success.
-Sc 7- Auth an existing user, update another existing users details. should fail with 403.
-Sc 8- Auth an existing user, update non existing users details. should come back with 404
-Sc 9 - Auth an existing user, delete that users details. no content success.
-Sc 10- Auth an existing user, delete another existing users details. should fail with 403.
-Sc 11- Auth an existing user, delete non existing users details. should come back with 404
-Sc 12 - Auth an existing user with account, delete that existing user, should come back with 409
+- **Create Account:** `POST /v1/accounts`
+  ```json
+  {
+   "name": "Personal Bank Account",
+   "accountType": "personal"
+  }
+  ```
+- **List Accounts:** `GET /v1/accounts`
+- **Fetch Account:** `GET /v1/accounts/{accountNumber}`
+- **Update Account:** `PATCH /v1/accounts/{accountNumber}`
+- **Delete Account:** `DELETE /v1/accounts/{accountNumber}`
 
-Accounts 
-Sc 13 - Auth an existing user, create a new account.
-Sc 14 - Auth an existing user, create a new account with invalid details, validations should kick in with status 400.
-Sc 15 - Auth an existing user, list all accounts. should come back with accounts if there are accounts.
-Sc 16 - Auth an existing user, fetch account for that user by account number. Success
-Sc 17 - Auth an existing user, fetch existing account for another user. Should fail with 403.
-Sc 18 - Auth an existing user, fetch non-existing account. Should fail with 404.
-Sc 19 - Auth an existing user, update account for that user by account number. Success
-Sc 20 - Auth an existing user, update existing account for another user. Should fail with 403.
-Sc 21 - Auth an existing user, update non-existing account. Should fail with 404.
-Sc 22 - Auth an existing user, delete account for that user by account number. Success
-Sc 23 - Auth an existing user, delete existing account for another user. Should fail with 403.
-Sc 24 - Auth an existing user, delete non-existing account. Should fail with 404.
+#### 3. Transaction APIs
 
+- **Create Transaction:** `POST /v1/accounts/{accountNumber}/transactions`
+  ```json
+  {
+   "amount": 100.00,
+   "currency": "GBP",
+   "type": "deposit",
+   "reference": "Initial deposit"
+  }
+  ```
+- **List Transactions:** `GET /v1/accounts/{accountNumber}/transactions`
+- **Fetch Transaction:** `GET /v1/accounts/{accountNumber}/transactions/{transactionId}`
 
+#### 4. Authentication API
 
-test2 1c3ad5b1-8640-4973-85d8-d28db21ebd91
+- **Authenticate User:** `POST /v1/authenticate`
+  ```json
+  {
+   "username": "userId-1"
+  }
+  ```
+
+---
+
+### Requirements & Discussion Points
+
+1. Handle `userId` internally, not as part of request bodies
+2. Use vague error messages and status codes for not found/forbidden
+3. On validation failure, return error codes instead of field names
+4. Integrate observability tools
+5. Decide: Should authentication for non-existing users return 401 or 403?
+6. If account numbers are user-specific, consider removing them from URLs and ensure transaction IDs belong to the user
+
+---
+
+### Testing Scenarios
+
+#### User
+
+- **Sc 1:** Create a new user
+- **Sc 2:** Validate user creation (400 on invalid)
+- **Sc 3:** Authenticate and fetch own details (success)
+- **Sc 4:** Authenticate and fetch another user's details (403)
+- **Sc 5:** Authenticate and fetch non-existing user (404)
+- **Sc 6:** Authenticate and update own details (success)
+- **Sc 7:** Authenticate and update another user's details (403)
+- **Sc 8:** Authenticate and update non-existing user (404)
+- **Sc 9:** Authenticate and delete own details (204)
+- **Sc 10:** Authenticate and delete another user's details (403)
+- **Sc 11:** Authenticate and delete non-existing user (404)
+- **Sc 12:** Delete user with existing account (409)
+
+#### Account
+
+- **Sc 13:** Create a new account
+- **Sc 14:** Validate account creation (400 on invalid)
+- **Sc 15:** List all accounts (success)
+- **Sc 16:** Fetch own account by account number (success)
+- **Sc 17:** Fetch another user's account (403)
+- **Sc 18:** Fetch non-existing account (404)
+- **Sc 19:** Update own account (success)
+- **Sc 20:** Update another user's account (403)
+- **Sc 21:** Update non-existing account (404)
+- **Sc 22:** Delete own account (success)
+- **Sc 23:** Delete another user's account (403)
+- **Sc 24:** Delete non-existing account (404)
