@@ -1,22 +1,14 @@
-package com.eagle.model;
+package com.eagle.response;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 
-@Entity
-@Table(name = "transactions")
-public class TransactionModel {
-    @Id
-    private String id; // ^tan-[A-Za-z0-9]+$
-
-    private double amount; // 0.00 - 10000.00
-    private String currency; // "GBP"
-    private String type; // "deposit" or "withdrawal"
+public class TransactionResponse {
+    private String id;
+    private double amount;
+    private String currency;
+    private String type;
     private String reference;
-    private String userId; // ^usr-[A-Za-z0-9]+$
-    private String accountNumber; // ^acc-[A-Za-z0-9]+$
+    private String userId;
     private OffsetDateTime createdTimestamp;
 
     // Getters and Setters
@@ -67,14 +59,6 @@ public class TransactionModel {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
     }
 
     public OffsetDateTime getCreatedTimestamp() {

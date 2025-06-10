@@ -1,15 +1,30 @@
 package com.eagle.request;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 public class CreateTransaction {
-    private double amount;
-    private String currency; // e.g., "GBP"
-    private String type;     // e.g., "deposit" or "withdrawal"
+    @NotNull
+    @DecimalMin(value = "0.00")
+    @DecimalMax(value = "10000.00")
+    private Double amount;
+
+    @NotBlank
+    @Pattern(regexp = "GBP")
+    private String currency; // Only "GBP" allowed
+
+    @NotBlank
+    @Pattern(regexp = "deposit|withdrawal")
+    private String type; // Only "deposit" or "withdrawal" allowed
+
     private String reference;
-    private String userId;
 
     // Getters and Setters
-    public double getAmount() { return amount; }
-    public void setAmount(double amount) { this.amount = amount; }
+    public Double getAmount() { return amount; }
+    public void setAmount(Double amount) { this.amount = amount; }
 
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }
@@ -19,7 +34,4 @@ public class CreateTransaction {
 
     public String getReference() { return reference; }
     public void setReference(String reference) { this.reference = reference; }
-
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
 }

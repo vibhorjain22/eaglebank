@@ -1,55 +1,119 @@
 package com.eagle.controller;
 
+import com.eagle.model.AccountModel;
 import com.eagle.model.TransactionModel;
 import com.eagle.request.CreateTransaction;
+import com.eagle.repository.TransactionRepository;
+import com.eagle.repository.AccountRepository;
+import com.eagle.response.TransactionResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import jakarta.validation.Valid;
+
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/accounts/{accountNumber}/transactions")
 public class TransactionController {
 
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
     // List all transactions for an account
+    @PreAuthorize("@accountSecurity.hasAccessToAccount(#accountNumber)")
     @GetMapping
-    public ResponseEntity<List<TransactionModel>> listTransactions(@PathVariable String accountNumber) {
-        // Stub: Replace with service call
-        List<TransactionModel> transactions = new ArrayList<>();
-        return ResponseEntity.ok(transactions);
+    public ResponseEntity<List<TransactionResponse>> listTransactions(@PathVariable String accountNumber) {
+        List<TransactionModel> transactions = transactionRepository.findAllByAccountNumber(accountNumber);
+        List<TransactionResponse> responses = transactions.stream().map(this::toResponse).collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 
     // Create a new transaction for an account
+    @PreAuthorize("@accountSecurity.hasAccessToAccount(#accountNumber)")
     @PostMapping
-    public ResponseEntity<TransactionModel> createTransaction(
+    public ResponseEntity<TransactionResponse> createTransaction(
             @PathVariable String accountNumber,
-            @RequestBody CreateTransaction transactionRequest
+            @Valid @RequestBody CreateTransaction transactionRequest,
+            @RequestHeader("Authorization") String authorizationHeader
     ) {
-        // Map CreateTransaction to TransactionModel
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        // Fetch account directly from repository
+        AccountModel account = accountRepository.findById(accountNumber).orElse(null);
+        if (account == null) {
+            return ResponseEntity.status(404).build();
+        }
+
+        // Check balance for withdrawal
+        if ("withdrawal".equalsIgnoreCase(transactionRequest.getType())) {
+            if (account.getBalance() < transactionRequest.getAmount()) {
+                return ResponseEntity.status(422).body(null); // Or use a custom error response
+            }
+        }
+
+        // Update balance
+        double updateAmount = transactionRequest.getAmount();
+        if ("withdrawal".equalsIgnoreCase(transactionRequest.getType())) {
+            updateAmount = -updateAmount;
+        }
+        account.setBalance(account.getBalance() + updateAmount);
+        accountRepository.save(account);
+
+        // Create and save transaction
         TransactionModel transactionModel = new TransactionModel();
-        transactionModel.setId("tan-123abc");
+        transactionModel.setId("tan-" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8));
         transactionModel.setAmount(transactionRequest.getAmount());
         transactionModel.setCurrency(transactionRequest.getCurrency());
         transactionModel.setType(transactionRequest.getType());
         transactionModel.setReference(transactionRequest.getReference());
-        transactionModel.setUserId(transactionRequest.getUserId());
         transactionModel.setCreatedTimestamp(OffsetDateTime.now());
+        transactionModel.setAccountNumber(accountNumber);
+        transactionModel.setUserId(userId);
 
-        return ResponseEntity.status(201).body(transactionModel);
+        transactionRepository.save(transactionModel);
+
+        // Transform to response
+        TransactionResponse response = toResponse(transactionModel);
+
+        return ResponseEntity.status(201).body(response);
     }
 
     // Get a transaction by ID for an account
+    @PreAuthorize("@accountSecurity.hasAccessToAccount(#accountNumber)")
     @GetMapping("/{transactionId}")
-    public ResponseEntity<TransactionModel> getTransactionById(
+    public ResponseEntity<TransactionResponse> getTransactionById(
             @PathVariable String accountNumber,
             @PathVariable String transactionId
     ) {
-        // Stub: Replace with service call
-        TransactionModel transaction = new TransactionModel();
-        transaction.setId(transactionId);
-        transaction.setCreatedTimestamp(OffsetDateTime.now());
-        return ResponseEntity.ok(transaction);
+        return transactionRepository.findById(transactionId)
+                .filter(tx -> accountNumber.equals(tx.getAccountNumber()))
+                .map(this::toResponse)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Helper method to map TransactionModel to TransactionResponse
+    private TransactionResponse toResponse(TransactionModel transactionModel) {
+        TransactionResponse response = new TransactionResponse();
+        response.setId(transactionModel.getId());
+        response.setAmount(transactionModel.getAmount());
+        response.setCurrency(transactionModel.getCurrency());
+        response.setType(transactionModel.getType());
+        response.setReference(transactionModel.getReference());
+        response.setUserId(transactionModel.getUserId());
+        response.setCreatedTimestamp(transactionModel.getCreatedTimestamp());
+        return response;
     }
 }
