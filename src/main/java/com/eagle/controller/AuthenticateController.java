@@ -41,18 +41,15 @@ public class AuthenticateController {
 
     @PostMapping
     public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
-        System.out.println("AuthenticateController: Received authentication request for username (email): " + request.getUsername());
         // Check if user exists by email
         UserModel user = userRepository.findByEmail(request.getUsername())
                 .orElse(null);
 
         if (user == null) {
-            System.out.println("AuthenticateController: User not found for email: " + request.getUsername());
             return ResponseEntity.status(401).build();
         }
 
         String token = jwtService.generateToken(user.getId());
-        System.out.println("AuthenticateController: Generated JWT token for username: " + request.getUsername());
         return ResponseEntity.ok(new AuthResponse(token));
     }
 }

@@ -14,7 +14,6 @@ public class JwtService {
     private final String secretKey = "ThisIsASecretKeyForJwtSigningAndShouldBeLongEnough";
 
     public String generateToken(String username) {
-        System.out.println("JwtService.generateToken called for username: " + username);
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -30,7 +29,6 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
-        System.out.println("JwtService.extractUserId extracted userId: " + userId);
         return userId;
     }
 

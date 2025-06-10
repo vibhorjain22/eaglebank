@@ -28,7 +28,6 @@ public class UserController {
     // Create a new user
     @PostMapping
     public ResponseEntity<UserModel> createUser(@Valid @RequestBody CreateUser userRequest) {
-        System.out.println("Received request to create user: " + userRequest.getName());
 
         UserModel userModel = new UserModel();
         userModel.setName(userRequest.getName());
@@ -49,7 +48,6 @@ public class UserController {
             userModel.setAddress(address);
         }
         repo.save(userModel);
-        System.out.println("User created with ID: " + userModel.getId());
         return ResponseEntity.status(201).body(userModel);
     }
 
@@ -57,14 +55,11 @@ public class UserController {
     @PreAuthorize("@userSecurity.hasAccessToUser(#userId)")
     @GetMapping("/{userId}")
     public ResponseEntity<UserModel> fetchUserById(@PathVariable String userId) {
-        System.out.println("Received request to fetch user with userId: " + userId);
         return repo.findById(userId)
                 .map(user -> {
-                    System.out.println("User found with ID: " + userId);
                     return ResponseEntity.ok(user);
                 })
                 .orElseGet(() -> {
-                    System.out.println("User not found with ID: " + userId);
                     return ResponseEntity.notFound().build();
                 });
     }
@@ -75,7 +70,6 @@ public class UserController {
     public ResponseEntity<UserModel> updateUserById(
             @PathVariable String userId,
             @Valid @RequestBody UpdateUser userUpdateRequest) {
-        System.out.println("Received request to update user with userId: " + userId);
 
         // Find the existing user
         return repo.findById(userId)
@@ -98,11 +92,9 @@ public class UserController {
                     }
 
                     repo.save(existingUser);
-                    System.out.println("User updated with userId: " + userId);
                     return ResponseEntity.ok(existingUser);
                 })
                 .orElseGet(() -> {
-                    System.out.println("User not found with ID: " + userId);
                     return ResponseEntity.notFound().build();
                 });
     }
@@ -111,23 +103,19 @@ public class UserController {
     @PreAuthorize("@userSecurity.hasAccessToUser(#userId)")
     @DeleteMapping("/{userId}")
     public ResponseEntity<Object> deleteUserById(@PathVariable String userId) {
-        System.out.println("Received request to delete user with userId: " + userId);
 
         // Check if user has any accounts
         boolean hasAccounts = accountRepository.findAllByUserId(userId).size() > 0;
         if (hasAccounts) {
-            System.out.println("Cannot delete user with userId: " + userId + " because accounts exist.");
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User has associated accounts and cannot be deleted.");
         }
 
         return repo.findById(userId)
             .map(existingUser -> {
                 repo.delete(existingUser);
-                System.out.println("User deleted with userId: " + userId);
                 return ResponseEntity.noContent().build();
             })
             .orElseGet(() -> {
-                System.out.println("User not found with ID: " + userId);
                 return ResponseEntity.notFound().build();
             });
     }
