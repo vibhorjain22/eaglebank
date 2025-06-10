@@ -33,9 +33,10 @@ This project involves building a Spring Boot Java REST API with three main resou
 2. **Request Objects:** Create request DTOs as per `openApi.yaml`
 3. **Controllers:** Implement REST controllers using request objects and returning data models
 4. **Repository:** Controllers interact with an in-memory repository for data persistence
-5. **Authentication:** Implement an `AuthenticateController` for user authentication and JWT issuance (demo users: `userId-1`, `userId-2`)
-6. **JWT Filter:** Validate JWT on each request, ensuring resource access matches authenticated user
-7. **Access Check:** Custom component to verify resource ownership
+5. **Authentication:** Implement a custom JWT Service to protect non public endpoints to use JWT token.
+6. **JWT Filter:** Validate JWT on each request, ensuring resource access matches authenticated user.
+7. **Controllers:** Where the customer needs to be authorised to perform an action, add a custom PreAuthorise annotation to help provide forbidden response to unauthorised access.
+8. **Validations:** Added validations to prevent bad data being processed.
 
 ---
 
@@ -122,32 +123,36 @@ This project involves building a Spring Boot Java REST API with three main resou
 
 ### Testing Scenarios
 
+The following scenarios are covered by automated E2E tests:
+
 #### User
 
-- **Sc 1:** Create a new user
-- **Sc 2:** Validate user creation (400 on invalid)
-- **Sc 3:** Authenticate and fetch own details (success)
-- **Sc 4:** Authenticate and fetch another user's details (403)
-- **Sc 5:** Authenticate and fetch non-existing user (404)
-- **Sc 6:** Authenticate and update own details (success)
-- **Sc 7:** Authenticate and update another user's details (403)
-- **Sc 8:** Authenticate and update non-existing user (404)
-- **Sc 9:** Authenticate and delete own details (204)
-- **Sc 10:** Authenticate and delete another user's details (403)
-- **Sc 11:** Authenticate and delete non-existing user (404)
-- **Sc 12:** Delete user with existing account (409)
+- **Sc 1:** Create a new user with valid data. ✅
+- **Sc 2:** Validate user creation (400 on invalid). ✅
+- **Sc 3:** Authenticate and fetch own details (success). ✅
+- **Sc 4:** Authenticate and fetch another user's details (403). ✅
+- **Sc 5:** Authenticate and fetch non-existing user (404). ✅
+- **Sc 6:** Authenticate and update own details (success). ✅
+- **Sc 7:** Authenticate and update another user's details (403). ✅
+- **Sc 8:** Authenticate and update non-existing user (404). ✅
+- **Sc 9:** Authenticate and delete own details (204). ✅
+- **Sc 10:** Authenticate and delete another user's details (403). ✅
+- **Sc 11:** Authenticate and delete non-existing user (404). ✅
+- **Sc 12:** Delete user with existing account (409). ✅
 
 #### Account
 
-- **Sc 13:** Create a new account
-- **Sc 14:** Validate account creation (400 on invalid)
-- **Sc 15:** List all accounts (success)
-- **Sc 16:** Fetch own account by account number (success)
-- **Sc 17:** Fetch another user's account (403)
-- **Sc 18:** Fetch non-existing account (404)
-- **Sc 19:** Update own account (success)
-- **Sc 20:** Update another user's account (403)
-- **Sc 21:** Update non-existing account (404)
-- **Sc 22:** Delete own account (success)
-- **Sc 23:** Delete another user's account (403)
-- **Sc 24:** Delete non-existing account (404)
+- **Sc 13:** Create a new account. ✅
+- **Sc 14:** Validate account creation (400 on invalid). ✅
+- **Sc 15:** List all accounts (success). ✅
+- **Sc 16:** Fetch own account by account number (success). ✅
+- **Sc 17:** Fetch another user's account (403). ✅
+- **Sc 18:** Fetch non-existing account (404). ✅
+- **Sc 19:** Update own account (success). ✅
+- **Sc 20:** Update another user's account (403). ✅
+- **Sc 21:** Update non-existing account (404). ✅
+- **Sc 22:** Delete own account (success). ✅
+- **Sc 23:** Delete another user's account (403). ✅
+- **Sc 24:** Delete non-existing account (404). ✅
+
+> ✅ indicates there is automated E2E test coverage for this scenario.
