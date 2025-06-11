@@ -5,6 +5,7 @@ import com.eagle.model.TransactionModel;
 import com.eagle.request.CreateTransaction;
 import com.eagle.repository.TransactionRepository;
 import com.eagle.repository.AccountRepository;
+import com.eagle.response.ListTransactionsResponse;
 import com.eagle.response.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class TransactionController {
     // List all transactions for an account
     @PreAuthorize("@accountSecurity.hasAccessToAccount(#accountNumber)")
     @GetMapping
-    public ResponseEntity<List<TransactionResponse>> listTransactions(@PathVariable String accountNumber) {
+    public ResponseEntity<ListTransactionsResponse> listTransactions(@PathVariable String accountNumber) {
         // Check if account exists
         if (!accountRepository.existsById(accountNumber)) {
             return ResponseEntity.notFound().build();
@@ -42,7 +43,7 @@ public class TransactionController {
         List<TransactionModel> transactions = transactionRepository.findAllByAccountNumber(accountNumber);
 
         List<TransactionResponse> responses = transactions.stream().map(this::toResponse).collect(Collectors.toList());
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(new ListTransactionsResponse(responses));
     }
 
     // Create a new transaction for an account

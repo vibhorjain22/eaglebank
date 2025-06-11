@@ -218,11 +218,13 @@ public class TransactionControllerE2ETest {
                 .content(objectMapper.writeValueAsString(transaction)))
                 .andExpect(status().isCreated());
 
-        // List transactions
+        // List transactions and assert the new response structure
         MvcResult result = mockMvc.perform(get("/v1/accounts/" + accountNumber + "/transactions")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[*].amount").isArray())
+                .andExpect(jsonPath("$.transactions").isArray())
+                .andExpect(jsonPath("$.transactions[0].amount").value(50.0))
+                .andExpect(jsonPath("$.transactions[0].reference").value("Deposit for listing"))
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();

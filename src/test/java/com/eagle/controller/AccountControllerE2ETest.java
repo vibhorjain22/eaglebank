@@ -2,6 +2,7 @@ package com.eagle.controller;
 
 import com.eagle.request.CreateUser;
 import com.eagle.request.CreateUser.Address;
+import com.eagle.request.UpdateAccount;
 import com.eagle.request.CreateAccount;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -225,7 +226,7 @@ public class AccountControllerE2ETest {
         String accountNumber = createAccountAndGetNumber(account, token);
 
         // Prepare update payload (only name and accountType are updatable)
-        com.eagle.request.UpdateAccount updateAccount = new com.eagle.request.UpdateAccount();
+        UpdateAccount updateAccount = new UpdateAccount();
         updateAccount.setName("Updated Account Name");
         updateAccount.setAccountType("personal");
 
