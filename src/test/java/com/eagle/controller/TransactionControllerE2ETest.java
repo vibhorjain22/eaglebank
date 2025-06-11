@@ -423,9 +423,31 @@ public class TransactionControllerE2ETest {
         createUserAndGetId(buildUser("Transaction User", "+441234567890", email, "123 Main St", "London", "Greater London", "E1 6AN"));
         String token = authenticateAndGetToken(email);
 
+        // Create a real account and transaction
+        CreateAccount account = new CreateAccount();
+        account.setName("Main Account");
+        account.setAccountType("personal");
+        account.setCurrency("GBP");
+        String accountNumber = createAccountAndGetNumber(account, token);
+
+        CreateTransaction transaction = new CreateTransaction();
+        transaction.setAmount(10.0);
+        transaction.setCurrency("GBP");
+        transaction.setType("deposit");
+        transaction.setReference("Real transaction");
+
+        MvcResult result = mockMvc.perform(post("/v1/accounts/" + accountNumber + "/transactions")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transaction)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String realTransactionId = objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText();
+
+        // Use a non-existent account number with a real transaction id
         String madeUpAccountNumber = "acc-99999999";
-        String madeUpTransactionId = "tan-99999999";
-        mockMvc.perform(get("/v1/accounts/" + madeUpAccountNumber + "/transactions/" + madeUpTransactionId)
+        mockMvc.perform(get("/v1/accounts/" + madeUpAccountNumber + "/transactions/" + realTransactionId)
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
     }

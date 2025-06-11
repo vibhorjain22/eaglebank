@@ -149,37 +149,21 @@ The following scenarios are covered by automated E2E tests:
 - **Sc 24:** Delete non-existing account (404). ✅
 
 #### Transactions
-Authenticated user with an existing account on creating deposit transaction should update balance on account with the amount from transaction. A transaction should be listed against the account. ✅
 
-Authenticated user with an existing account with sufficient balance on creating withdraw transaction should be successful and the balance should be updated. A transaction should be listed against the account. 
-
-Authenticated user with an existing account with insufficient balance on creating withdraw transaction should be given a response of 429 response code and the balance should not be updated. A transaction should not be listed against the account. ✅
-
-Authenticated user with an existing account on creating any transaction against someone else's existing account should not be allowed and given 403
-
-Authenticated user with an existing account on creating any transaction against a non-existing account should not be allowed and given 404
-
-Authenticated user with an existing account on creating any transaction against their own existing account with incorrect transaction detals should not be allowed and given 400
-
-Authenticated user with an existing account should be able to list more than 1 transaction against their account.
-
-Authenticated user with an existing account and tries to view someone else's account transaction should not be able to list transactions and given 403
-
-Authenticated user with an existing account and tries to view non-existent account transaction should not be able to list transactions and given 404
-
-Authenticated user with an existing account and tries to view a transaction from their account should be given transaction details.
-
-Authenticated user with an existing account and tries to view someone else's single account transaction should be given 403
-
-Authenticated user with an existing account and tries to view a single transaction on a non-existent account should be given 404
-
-Authenticated user with an existing account and tries to view a single transaction on their account but passes a non-existent transaction id should be given 404
-
-Authenticated user with an existing account and tries to view a single transaction for their account but passes the transaction id from a different account should be given 404
-
-
-
-
+- **Sc 25:** Create deposit transaction updates balance and is listed. ✅
+- **Sc 26:** Create withdraw transaction with sufficient balance is successful, balance updated, and transaction is listed. ✅
+- **Sc 27:** Create withdraw transaction with insufficient balance returns 429, balance not updated, transaction not listed. ✅
+- **Sc 28:** Create transaction on someone else's account returns 403. ✅
+- **Sc 29:** Create transaction on non-existing account returns 404. ✅
+- **Sc 30:** Create transaction with incorrect details returns 400. ✅
+- **Sc 31:** List more than 1 transaction for own account. ✅
+- **Sc 32:** List transactions for someone else's account returns 403. ✅
+- **Sc 33:** List transactions for non-existent account returns 404. ✅
+- **Sc 34:** Fetch transaction by ID for own account returns transaction details. ✅
+- **Sc 35:** Fetch transaction by ID for someone else's account returns 403. ✅
+- **Sc 36:** Fetch transaction by ID for non-existent account returns 404. ✅
+- **Sc 37:** Fetch transaction by ID for own account but non-existent transaction id returns 404. ✅
+- **Sc 38:** Fetch transaction by ID for own account but transaction id from another account returns 404. ✅
 
 > ✅ indicates there is automated E2E test coverage for this scenario.
 
@@ -190,6 +174,8 @@ Authenticated user with an existing account and tries to view a single transacti
 3. On validation failure, return error codes instead of field names
 4. Integrate observability tools
 5. Decide: Should authentication for non-existing users return 401 or 403?
-6. If account numbers are user-specific, consider removing them from URLs and ensure transaction IDs belong to the user
-7. Transactions serve statement purpose, we can consider pagination in responses.
+6. If account numbers are user-specific, consider removing them from URLs
+7. Transactions serve statement purpose, we can consider pagination, filtering and ordering in responses.
 8. Data Consistency is important and we should consider wrapping "transaction" using thread synchronisation to think about data integrity while updating balance for transactions. 
+9. Error Handling is a key element.
+10. De Sensitisation of the data.
