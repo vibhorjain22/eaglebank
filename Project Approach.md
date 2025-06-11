@@ -37,7 +37,8 @@ This project involves building a Spring Boot Java REST API with three main resou
 6. **JWT Filter:** Validate JWT on each request, ensuring resource access matches authenticated user.
 7. **Controllers:** Where the customer needs to be authorised to perform an action, add a custom PreAuthorise annotation to help provide forbidden response to unauthorised access.
 8. **Validations:** Added validations to prevent bad data being processed.
-9. Customer must be authenticated to make a transaction for their account, hence we dont have to save it by transaction as transaction belongs to an account and account belongs to userId. 
+9. **Security** Preauthorizations
+10. **WebMVC** E2E Test
 
 ---
 
@@ -111,17 +112,6 @@ This project involves building a Spring Boot Java REST API with three main resou
 
 ---
 
-### Requirements & Discussion Points
-
-1. Handle `userId` internally, not as part of request bodies
-2. Use vague error messages and status codes for not found/forbidden
-3. On validation failure, return error codes instead of field names
-4. Integrate observability tools
-5. Decide: Should authentication for non-existing users return 401 or 403?
-6. If account numbers are user-specific, consider removing them from URLs and ensure transaction IDs belong to the user
-7. Transactions serve statement purpose, we can consider pagination in responses.
-8. Data Consistency is important and we should consider wrapping "transaction" using thread synchronisation to think about data integrity while updating balance for transactions. 
-
 ---
 
 ### Testing Scenarios
@@ -192,3 +182,14 @@ Authenticated user with an existing account and tries to view a single transacti
 
 
 > ✅ indicates there is automated E2E test coverage for this scenario.
+
+### Requirements & Discussion Points
+
+1. Handle `userId` internally, not as part of request.
+2. Use vague error messages and status codes for not found/forbidden.
+3. On validation failure, return error codes instead of field names
+4. Integrate observability tools
+5. Decide: Should authentication for non-existing users return 401 or 403?
+6. If account numbers are user-specific, consider removing them from URLs and ensure transaction IDs belong to the user
+7. Transactions serve statement purpose, we can consider pagination in responses.
+8. Data Consistency is important and we should consider wrapping "transaction" using thread synchronisation to think about data integrity while updating balance for transactions. 

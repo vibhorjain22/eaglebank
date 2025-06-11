@@ -34,7 +34,12 @@ public class TransactionController {
     @PreAuthorize("@accountSecurity.hasAccessToAccount(#accountNumber)")
     @GetMapping
     public ResponseEntity<List<TransactionResponse>> listTransactions(@PathVariable String accountNumber) {
+        System.out.println("Listing transactions for account: " + accountNumber);
         List<TransactionModel> transactions = transactionRepository.findAllByAccountNumber(accountNumber);
+
+        // Print each transaction model
+        transactions.forEach(tx -> System.out.println("TransactionModel: " + tx));
+
         List<TransactionResponse> responses = transactions.stream().map(this::toResponse).collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
@@ -97,9 +102,13 @@ public class TransactionController {
             @PathVariable String accountNumber,
             @PathVariable String transactionId
     ) {
+        System.out.println("Fetching transaction " + transactionId + " for account: " + accountNumber);
         return transactionRepository.findById(transactionId)
                 .filter(tx -> accountNumber.equals(tx.getAccountNumber()))
-                .map(this::toResponse)
+                .map(tx -> {
+                    System.out.println("TransactionModel: " + tx);
+                    return toResponse(tx);
+                })
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

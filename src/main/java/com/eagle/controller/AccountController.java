@@ -47,7 +47,7 @@ public class AccountController {
         accountModel.setSortCode("10-10-10");
         accountModel.setName(accountRequest.getName());
         accountModel.setAccountType(accountRequest.getAccountType());
-        accountModel.setCurrency(accountRequest.getCurrency());
+        accountModel.setCurrency("GBP");
         accountModel.setCreatedTimestamp(OffsetDateTime.now());
         accountModel.setUpdatedTimestamp(OffsetDateTime.now());
 
