@@ -91,26 +91,6 @@ public class AccountController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Update account balance for a given account number.
-     * This endpoint can be called after a transaction is created.
-     */
-    @PreAuthorize("@accountSecurity.hasAccessToAccount(#accountNumber)")
-    @PatchMapping("/{accountNumber}/balance")
-    public ResponseEntity<AccountModel> updateAccountBalance(
-            @PathVariable String accountNumber,
-            @RequestParam("amount") double amount) {
-        return accountRepository.findById(accountNumber)
-                .map(accountModel -> {
-                    double newBalance = accountModel.getBalance() + amount;
-                    accountModel.setBalance(newBalance);
-                    accountModel.setUpdatedTimestamp(OffsetDateTime.now());
-                    accountRepository.save(accountModel);
-                    return ResponseEntity.ok(accountModel);
-                })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-    }
-
     // Delete account by account number
     @PreAuthorize("@accountSecurity.hasAccessToAccount(#accountNumber)")
     @DeleteMapping("/{accountNumber}")
